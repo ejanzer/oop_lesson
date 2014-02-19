@@ -25,6 +25,8 @@ class Character(GameElement):
     def __init__(self):
         GameElement.__init__(self)
         self.inventory = {"Blue Gem": 0, "Green Gem": 0, "Orange Gem": 0, "Key": 0}
+        self.level_complete = False
+        self.level_at = 1
 
     def next_pos(self, direction):
         if direction == 'up':
@@ -89,7 +91,7 @@ class Prince(NPC):
     IMAGE = "Boy"
     def interact(self, player):
         GAME_BOARD.draw_msg("Oh no! This is an impostor prince! Your prince is in another castle.\nPress SPACE to continue.")
-        #AME_BOARD.draw_msg("")
+        player.level_complete = True
 
 class Bystander(NPC):
     IMAGE = "Horns"
@@ -180,10 +182,14 @@ def keyboard_handler():
         orange = PLAYER.inventory['Orange Gem']
         doorkey = PLAYER.inventory['Key']
         inventory_string = "You have %d blue gem, %d orange gem, %d green gem and %d key." % (blue, orange, green, doorkey)
-        # for item, number in PLAYER.inventory.iteritems():
-        #     inventory_string += "%d %s " % (number, item)
+
 
         GAME_BOARD.draw_msg(inventory_string)
+    if KEYBOARD[key.SPACE] and PLAYER.level_complete:
+        PLAYER.level_complete = False
+        PLAYER.level_at += 1
+        wipe_board()
+        set_up_level()
 
     if direction:
         next_location = PLAYER.next_pos(direction)
@@ -206,6 +212,11 @@ def check_pos(x, y):
         return False
     return True
 
+def wipe_board():
+    pass
+
+def set_up_level():
+    pass
 
 def initialize():
     """Put game initialization code here"""
@@ -260,6 +271,6 @@ def initialize():
 
     bystander = Bystander()
     GAME_BOARD.register(bystander)
-    GAME_BOARD.set_el(0, 0, bystander)
+    GAME_BOARD.set_el(0, 1, bystander)
 
     GAME_BOARD.draw_msg("You need to save Prince Pineapple from the castle!")

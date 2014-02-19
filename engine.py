@@ -104,13 +104,12 @@ class Board(object):
         sentences = message.split('\n')
         default_y = SCREEN_Y - 20
         for i in range(len(sentences)):
-            label = pyglet.text.Label(text = sentences[i], font_name="Helvetica", font_size=11, x=10, y=default_y - (11 * i))            
+            label = pyglet.text.Label(text = sentences[i], font_name="Helvetica", font_size=11, x=10, y=default_y - (16 * i))            
             self.message.append(label)
         pass
 
     def erase_msg(self):
-        for line in self.message:
-            line.text = ''
+        self.message = []
         pass
 
     def draw_bg(self, sprite, x_pos, y_pos):
