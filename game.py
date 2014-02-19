@@ -166,6 +166,15 @@ class Key(GameElement):
 
 ####   End class definitions    ####
 
+def initialize():
+    """Put game initialization code here"""
+    global PLAYER
+    PLAYER = Character()
+    GAME_BOARD.register(PLAYER)
+    GAME_BOARD.set_el(6, 3, PLAYER)
+
+    set_up_level()
+
 def keyboard_handler():
     direction = None
     if KEYBOARD[key.UP]:
@@ -183,8 +192,8 @@ def keyboard_handler():
         doorkey = PLAYER.inventory['Key']
         inventory_string = "You have %d blue gem, %d orange gem, %d green gem and %d key." % (blue, orange, green, doorkey)
 
-
         GAME_BOARD.draw_msg(inventory_string)
+
     if KEYBOARD[key.SPACE] and PLAYER.level_complete:
         PLAYER.level_complete = False
         PLAYER.level_at += 1
@@ -213,13 +222,20 @@ def check_pos(x, y):
     return True
 
 def wipe_board():
-    pass
+    for x in range(0, GAME_WIDTH):
+        for y in range(0, GAME_HEIGHT):
+            GAME_BOARD.del_el(x, y)
 
 def set_up_level():
-    pass
+    d = {
+        1: set_up_one,
+        2: set_up_two
+    }
 
-def initialize():
-    """Put game initialization code here"""
+    d[PLAYER.level_at]()
+
+def set_up_one():
+
     wall_position = [(4, 0), (4, 1), (4, 2), (6, 2)]
     walls = []
     for pos in wall_position:
@@ -252,10 +268,6 @@ def initialize():
         GAME_BOARD.set_el(pos[0], pos[1], rock)
         rocks.append(rock)
 
-    global PLAYER
-    PLAYER = Character()
-    GAME_BOARD.register(PLAYER)
-    GAME_BOARD.set_el(6, 3, PLAYER)
 
     bgem = BlueGem()
     GAME_BOARD.register(bgem)
@@ -274,3 +286,7 @@ def initialize():
     GAME_BOARD.set_el(0, 1, bystander)
 
     GAME_BOARD.draw_msg("You need to save Prince Pineapple from the castle!")
+
+
+def set_up_two():
+    pass
