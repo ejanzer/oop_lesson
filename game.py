@@ -93,22 +93,30 @@ class Prince(NPC):
 class Bystander(NPC):
     IMAGE = "Horns"
     def interact(self, player):
-        d = {'blue': 0, 'orange': 0, 'green': 0}
-        for item in player.inventory:
-            if isinstance(item, BlueGem):
-                d['blue'] += 1
-            elif isinstance(item, OrangeGem):
-                d['orange'] += 1
-            elif isinstance(item, GreenGem):
-                d['green'] += 1
-
-        if d['blue'] >= 1 and d['orange'] >= 1 and d['green'] >= 1:
-            # Remove from the inventory
+        missing_gems = []
+        if player.inventory['BlueGem'] >= 1 and player.inventory['OrangeGem'] >= 1 and player.inventory['GreenGem'] >= 1:
+            player.inventory['BlueGem'] -= 1
+            player.inventory['OrangeGem'] -= 1
+            player.inventory['GreenGem'] -= 1
             GAME_BOARD.draw_msg("You got all 3 gems! Here's a key.")
-            player.inventory.append('key')
-        else:
-            GAME_BOARD.draw_msg("I'll give you a key in exchange for a gem of each color!")
+            player.inventory['Key'] = 1
 
+        if player.inventory['BlueGem'] == 0:
+            missing_gems.append('blue')
+        if player.inventory['GreenGem'] == 0:
+            missing_gems.append('green')
+        if player.inventory['OrangeGem'] == 0:
+            missing_gems.append('orange')
+
+        if len(missing_gems) == 3:
+            GAME_BOARD.draw_msg("I'll give you a key in exchange for a gem of each color!")
+        elif missing_gems != []:
+            missing_gems_string = "You still need to get: "
+            for gem in missing_gems:
+                missing_gems_string += " " + gem
+            missing_gems_string += " gems."
+            GAME_BOARD.draw_msg(missing_gems_string)
+    
         # if player.inventory == []:
         #     
         # elif len(player.inventory):
@@ -137,7 +145,7 @@ class ClosedDoor(Door):
     SOLID = True
 
     def interact(self, player):
-        if 'key' in player.inventory:
+        if player.inventory['Key'] > 0:
             unlock_door(self.x, self.y)
             # x = self.x
             # y = self.y
@@ -166,7 +174,6 @@ class Key(GameElement):
 
 def keyboard_handler():
     direction = None
-
     if KEYBOARD[key.UP]:
         direction = 'up'
     if KEYBOARD[key.LEFT]:
@@ -176,9 +183,11 @@ def keyboard_handler():
     if KEYBOARD[key.DOWN]:
         direction = 'down'
     if KEYBOARD[key.I]:
+        inventory_string = "You have: "
         for item, number in PLAYER.inventory.iteritems():
-            #print item, number
-            GAME_BOARD.draw_msg("You have %d %ss" % (number, item))
+            inventory_string += "%d %s " % (number, item)
+
+        GAME_BOARD.draw_msg(inventory_string)
 
     if direction:
         next_location = PLAYER.next_pos(direction)

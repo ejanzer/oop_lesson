@@ -85,7 +85,7 @@ class Board(object):
         for y in range(height):
             self.content_layer.append(list(row))
 
-        self.message = pyglet.text.Label(text = "", x=10, y=SCREEN_Y-30)
+        self.message = pyglet.text.Label(text = "", font_name="Helvetica", font_size=11, x=10, y=SCREEN_Y-20)
         self.bg_sprites = []
 
         for y in range(height):
