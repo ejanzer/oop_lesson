@@ -24,7 +24,7 @@ class Character(GameElement):
 
     def __init__(self):
         GameElement.__init__(self)
-        self.inventory = []
+        self.inventory = {"BlueGem": 0, "GreenGem": 0, "OrangeGem": 0, "Key": 0}
 
     def next_pos(self, direction):
         if direction == 'up':
@@ -40,21 +40,27 @@ class Character(GameElement):
 class Gem(GameElement):
     SOLID = False
 
-    def interact(self, player):
-        player.inventory.append(self)
-        GAME_BOARD.draw_msg("You just acquired a gem! You have %d items!" % (len(player.inventory)))
-
 class BlueGem(Gem):
     IMAGE = "BlueGem"
 
-    # def interact(self, player):
-    #     pass
+    def interact(self, player):
+        player.inventory["BlueGem"] += 1
+        GAME_BOARD.draw_msg("You just acquired a blue gem! Press i to see your inventory.")
 
 class GreenGem(Gem):
     IMAGE = "GreenGem"
 
+    def interact(self, player):
+        player.inventory["GreenGem"] += 1
+        GAME_BOARD.draw_msg("You just acquired a green gem! Press i to see your inventory.")
+
 class OrangeGem(Gem):
     IMAGE = "OrangeGem"
+
+    def interact(self, player):
+        player.inventory["OrangeGem"] += 1
+        GAME_BOARD.draw_msg("You just acquired a orange gem! Press i to see your inventory.")
+
 
 class Heart(GameElement):
     IMAGE = "Heart"
@@ -87,11 +93,36 @@ class Prince(NPC):
 class Bystander(NPC):
     IMAGE = "Horns"
     def interact(self, player):
-        # here put the interaction for giving the Bystander stuff for the key
-        pass
+        d = {'blue': 0, 'orange': 0, 'green': 0}
+        for item in player.inventory:
+            if isinstance(item, BlueGem):
+                d['blue'] += 1
+            elif isinstance(item, OrangeGem):
+                d['orange'] += 1
+            elif isinstance(item, GreenGem):
+                d['green'] += 1
+
+        if d['blue'] >= 1 and d['orange'] >= 1 and d['green'] >= 1:
+            # Remove from the inventory
+            GAME_BOARD.draw_msg("You got all 3 gems! Here's a key.")
+            player.inventory.append('key')
+        else:
+            GAME_BOARD.draw_msg("I'll give you a key in exchange for a gem of each color!")
+
+        # if player.inventory == []:
+        #     
+        # elif len(player.inventory):
+        #     # Actually give them a key. Take the gems.
+        #     # Replacing inventory with an inventory that contains a key. 
+        #     # TODO: Remove the gems and add a key.
+        #     player.inventory = [key]
+        # else:
+        #     GAME_BOARD.draw_msg("You don't have 3 gems yet.")
+        # # here put the interaction for giving the Bystander stuff for the key
+        # pass
 
 class Wall(GameElement):
-    IMAGE = "Wall"
+    IMAGE = "StoneBlockTall"
     SOLID = True
 
 class Door(GameElement):
@@ -104,6 +135,24 @@ class OpenDoor(Door):
 class ClosedDoor(Door):
     IMAGE = "DoorClosed"
     SOLID = True
+
+    def interact(self, player):
+        if 'key' in player.inventory:
+            unlock_door(self.x, self.y)
+            # x = self.x
+            # y = self.y
+            # GAME_BOARD.del_el(self.x, self.y)
+            # door = OpenDoor()
+            # GAME_BOARD.register(door)
+            # GAME_BOARD.set_el(x, y, door)
+        else:
+            GAME_BOARD.draw_msg("It's locked...")
+
+def unlock_door(x, y):
+    GAME_BOARD.del_el(x, y)
+    door = OpenDoor()
+    GAME_BOARD.register(door)
+    GAME_BOARD.set_el(x, y, door)
 
 class Key(GameElement):
     IMAGE = "Key"
@@ -126,7 +175,11 @@ def keyboard_handler():
         direction = 'right'
     if KEYBOARD[key.DOWN]:
         direction = 'down'
-    
+    if KEYBOARD[key.I]:
+        for item, number in PLAYER.inventory.iteritems():
+            #print item, number
+            GAME_BOARD.draw_msg("You have %d %ss" % (number, item))
+
     if direction:
         next_location = PLAYER.next_pos(direction)
         next_x = next_location[0]
@@ -147,6 +200,7 @@ def check_pos(x, y):
     elif y >= GAME_HEIGHT or y < 0:
         return False
     return True
+
 
 def initialize():
     """Put game initialization code here"""
@@ -174,7 +228,7 @@ def initialize():
         GAME_BOARD.set_el(pos[0], pos[1], tree)
         trees.append(tree)
 
-    rock_positions = [(2, 1), (1, 2), (3, 2)]
+    rock_positions = [(2, 1), (1, 4), (3, 2)]
     rocks = []
     for pos in rock_positions:
         rock = Rock()
@@ -189,7 +243,23 @@ def initialize():
     GAME_BOARD.register(PLAYER)
     GAME_BOARD.set_el(2, 2, PLAYER)
 
-    # GAME_BOARD.draw_msg("This game is wicked awesome!")
+    bgem = BlueGem()
+    GAME_BOARD.register(bgem)
+    GAME_BOARD.set_el(1, 6, bgem)
+
+    ogem = OrangeGem()
+    GAME_BOARD.register(ogem)
+    GAME_BOARD.set_el(6, 5, ogem)
+
+    ggem = GreenGem()
+    GAME_BOARD.register(ggem)
+    GAME_BOARD.set_el(3, 0, ggem)
+
+    bystander = Bystander()
+    GAME_BOARD.register(bystander)
+    GAME_BOARD.set_el(0, 0, bystander)
+
+    GAME_BOARD.draw_msg("You need to save Prince Apricot from the castle!")
 
     # gem_pos = [(3, 1), (4, 0), (1, 4)]
     # gems = []
