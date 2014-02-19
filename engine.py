@@ -85,7 +85,9 @@ class Board(object):
         for y in range(height):
             self.content_layer.append(list(row))
 
-        self.message = pyglet.text.Label(text = "", font_name="Helvetica", font_size=11, x=10, y=SCREEN_Y-20)
+        #self.message = pyglet.text.Label(text = "", font_name="Helvetica", font_size=11, x=10, y=SCREEN_Y-20)
+        self.message = []
+
         self.bg_sprites = []
 
         for y in range(height):
@@ -98,11 +100,17 @@ class Board(object):
                 self.bg_sprites.append(sprite)
 
     def draw_msg(self, message):
-        self.message.text = message
+        self.message = []
+        sentences = message.split('\n')
+        default_y = SCREEN_Y - 20
+        for i in range(len(sentences)):
+            label = pyglet.text.Label(text = sentences[i], font_name="Helvetica", font_size=11, x=10, y=default_y - (11 * i))            
+            self.message.append(label)
         pass
 
     def erase_msg(self):
-        self.message.text = ""
+        for line in self.message:
+            line.text = ''
         pass
 
     def draw_bg(self, sprite, x_pos, y_pos):
@@ -158,7 +166,8 @@ class Board(object):
 
         # Draw the label if it exists:
         if self.message:
-            self.message.draw()
+            for line in self.message:
+                line.draw()
 
         # Draw the content layer
         for y in range(self.height):
