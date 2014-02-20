@@ -112,8 +112,11 @@ class Chest(GameElement):
 
 class NPC(GameElement):
     SOLID = True
+    def __init__(self):
+        self.met = False
     def interact(self, player):
         GAME_BOARD.draw_msg("This is a person!")
+        self.met = True
 
 class Prince(NPC):
     IMAGE = "Boy"
@@ -124,32 +127,37 @@ class Prince(NPC):
 class Bystander(NPC):
     IMAGE = "Horns"
     def interact(self, player):
-        missing_gems = []
-        if player.inventory['Key'] == 0:    
-            
-            if player.inventory['Blue Gem'] == 0:
-                missing_gems.append('blue')
-            if player.inventory['Green Gem'] == 0:
-                missing_gems.append('green')
-            if player.inventory['Orange Gem'] == 0:
-                missing_gems.append('orange')
+        if self.met:
+            missing_gems = []
+            if player.inventory['Key'] == 0:    
+                
+                if player.inventory['Blue Gem'] == 0:
+                    missing_gems.append('blue')
+                if player.inventory['Green Gem'] == 0:
+                    missing_gems.append('green')
+                if player.inventory['Orange Gem'] == 0:
+                    missing_gems.append('orange')
 
-            if missing_gems == []:
-                player.inventory['Blue Gem'] -= 1
-                player.inventory['Orange Gem'] -= 1
-                player.inventory['Green Gem'] -= 1
-                GAME_BOARD.draw_msg("You got all 3 gems! Here's a key.")
-                player.inventory['Key'] = 1
-            elif len(missing_gems) == 3:
-                GAME_BOARD.draw_msg("I'll give you a key in exchange for a gem of each color!")
-            elif len(missing_gems) == 2:
-                missing_gems_string = "You still need to get a %s gem and a %s gem." % (missing_gems[0], missing_gems[1])
-                GAME_BOARD.draw_msg(missing_gems_string)
-            elif len(missing_gems) == 1:
-                missing_gems_string = "You still need to get a %s gem." % (missing_gems[0])
-                GAME_BOARD.draw_msg(missing_gems_string)
+                if missing_gems == []:
+                    player.inventory['Blue Gem'] -= 1
+                    player.inventory['Orange Gem'] -= 1
+                    player.inventory['Green Gem'] -= 1
+                    GAME_BOARD.draw_msg("You got all 3 gems! Here's a key.")
+                    player.inventory['Key'] = 1
+                elif len(missing_gems) == 3:
+                    GAME_BOARD.draw_msg("I'll give you a key in exchange for a gem of each color!")
+                elif len(missing_gems) == 2:
+                    missing_gems_string = "You still need to get a %s gem and a %s gem." % (missing_gems[0], missing_gems[1])
+                    GAME_BOARD.draw_msg(missing_gems_string)
+                elif len(missing_gems) == 1:
+                    missing_gems_string = "You still need to get a %s gem." % (missing_gems[0])
+                    GAME_BOARD.draw_msg(missing_gems_string)
+            else:
+                GAME_BOARD.draw_msg("You need to go save Prince Pineapple!")
         else:
-            GAME_BOARD.draw_msg("You need to go save Prince Pineapple!")
+            GAME_BOARD.draw_msg("I'll give you a key in exchange for a gem of each color!")
+            self.met = True
+
 
 class Wall(GameElement):
     IMAGE = "StoneBlockTall"
