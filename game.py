@@ -37,7 +37,8 @@ IMAGE_KEYS = {
     'T': 'TallTree', 
     'y': 'Wall', 
     'z': 'Water',
-    '#': None
+    '#': None,
+    'N': 'Barrier'
 }
 
 
@@ -53,7 +54,7 @@ class Character(GameElement):
         GameElement.__init__(self)
         self.inventory = {"Blue Gem": 0, "Green Gem": 0, "Orange Gem": 0, "Key": 0}
         self.level_complete = False
-        self.level_at = 2
+        self.level_at = 1
 
     def next_pos(self, direction):
         if direction == 'up':
@@ -182,6 +183,7 @@ def unlock_door(x, y):
     door = OpenDoor()
     GAME_BOARD.register(door)
     GAME_BOARD.set_el(x, y, door)
+    PLAYER.inventory['Key'] -= 1
 
 class Key(GameElement):
     IMAGE = "Key"
@@ -192,6 +194,10 @@ class Key(GameElement):
 
 class Water(GameElement):
     IMAGE = "Water"
+    SOLID = True
+
+class Barrier(GameElement):
+    IMAGE = 'Blank'
     SOLID = True
 
 CLASS_KEYS = {
@@ -209,6 +215,7 @@ CLASS_KEYS = {
     'DoorClosed': ClosedDoor,
     'DoorOpen': OpenDoor,
     'Rock': Rock,
+    'Barrier': Barrier,
 }
 
 ####   End class definitions    ####
@@ -326,10 +333,6 @@ def set_up_two():
     background = map_setup(layout_data[0])
     foreground = map_setup(layout_data[1])
 
-    game_map = []
-    row = ['Water'] * 7
-    for i in range(7):
-        game_map.append(row)
     GAME_BOARD.set_bg_sprites(background)
     GAME_BOARD.draw()
 
@@ -337,3 +340,4 @@ def set_up_two():
 
     GAME_BOARD.register(PLAYER)
     GAME_BOARD.set_el(0, 0, PLAYER)
+    GAME_BOARD.draw_msg("You need to save Prince Pineapple from the castle!...again.")

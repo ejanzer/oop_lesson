@@ -42,7 +42,8 @@ def setup_images():
             "Girl": "Character Pink Girl.png",
             "Princess": "Character Princess Girl.png",
             "StoneBlockTall": "Stone Block Tall.png",
-            "Water" : "Water Block.png"
+            "Water" : "Water Block.png",
+            "Blank": "blank.png"
             }
 
     for k,v in filenames.items():
