@@ -14,6 +14,33 @@ PLAYER = None
 GAME_WIDTH = 7
 GAME_HEIGHT = 7
 
+IMAGE_KEYS = {
+    's': 'Block', 
+    'B': 'BlueGem', 
+    'P': 'Boy', 
+    'a': 'Cat', 
+    'x': 'Chest', 
+    'D': 'DoorClosed', 
+    'd': 'DoorOpen', 
+    'l': 'Girl', 
+    'g': 'GrassBlock', 
+    'G': 'GreenGem', 
+    'h': 'Heart', 
+    'H': 'Horns', 
+    'K': 'Key', 
+    'O': 'OrangeGem', 
+    'C': 'Princess', 
+    'S': 'Rock', 
+    'b': 'ShortTree', 
+    'n': 'StoneBlock', 
+    'W': 'StoneBlockTall', 
+    'T': 'TallTree', 
+    'y': 'Wall', 
+    'z': 'Water',
+    '#': None
+}
+
+
 #### Put class definitions here ####
 class Rock(GameElement):
     IMAGE = "Rock"
@@ -26,7 +53,7 @@ class Character(GameElement):
         GameElement.__init__(self)
         self.inventory = {"Blue Gem": 0, "Green Gem": 0, "Orange Gem": 0, "Key": 0}
         self.level_complete = False
-        self.level_at = 1
+        self.level_at = 2
 
     def next_pos(self, direction):
         if direction == 'up':
@@ -163,6 +190,26 @@ class Key(GameElement):
         # TODO: Add the key to the inventory. Print something to the screen.
         pass
 
+class Water(GameElement):
+    IMAGE = "Water"
+    SOLID = True
+
+CLASS_KEYS = {
+    'BlueGem': BlueGem,
+    'Boy': Prince,
+    'StoneBlockTall': Wall,
+    'Princess': Character,
+    'Horns': Bystander,
+    'GreenGem': GreenGem,
+    'OrangeGem': OrangeGem,
+    'Heart': Heart,
+    'TallTree': Tree,
+    'Chest': Chest,
+    'Key': Key,
+    'DoorClosed': ClosedDoor,
+    'DoorOpen': OpenDoor,
+    'Rock': Rock,
+}
 
 ####   End class definitions    ####
 
@@ -170,8 +217,6 @@ def initialize():
     """Put game initialization code here"""
     global PLAYER
     PLAYER = Character()
-    GAME_BOARD.register(PLAYER)
-    GAME_BOARD.set_el(6, 3, PLAYER)
 
     set_up_level()
 
@@ -234,59 +279,61 @@ def set_up_level():
 
     d[PLAYER.level_at]()
 
+def map_setup(map_string):
+    lines = map_string.split()
+    game_map = []
+    for i in range(len(lines)):
+        row = []
+        for char in lines[i]:
+            row.append(IMAGE_KEYS[char])
+        game_map.append(row)
+    return game_map
+
+def draw_foreground(game_map):
+    for x in range(GAME_WIDTH):
+        for y in range(GAME_HEIGHT):
+            if game_map[y][x]:
+                object_instance = CLASS_KEYS[game_map[y][x]]()
+                GAME_BOARD.register(object_instance)
+                GAME_BOARD.set_el(x, y, object_instance)
+
 def set_up_one():
 
-    wall_position = [(4, 0), (4, 1), (4, 2), (6, 2)]
-    walls = []
-    for pos in wall_position:
-        wall = Wall()
-        GAME_BOARD.register(wall)
-        GAME_BOARD.set_el(pos[0], pos[1], wall)
-        walls.append(wall)
-    
-    door =  ClosedDoor()
-    GAME_BOARD.register(door)
-    GAME_BOARD.set_el(5, 2, door)
+    f = open("level_one.txt")
+    layout_data = f.read()
+    f.close()
+    layout_data = layout_data.split('*')
+    background = map_setup(layout_data[0])
+    foreground = map_setup(layout_data[1])
 
-    prince = Prince()
-    GAME_BOARD.register(prince)
-    GAME_BOARD.set_el(6, 0, prince)
-
-    tree_position = [(3,1), (2, 3), (3, 4), (5, 5)]
-    trees = []
-    for pos in tree_position:
-        tree = Tree()
-        GAME_BOARD.register(tree)
-        GAME_BOARD.set_el(pos[0], pos[1], tree)
-        trees.append(tree)
-
-    rock_positions = [(2, 1), (1, 4), (3, 2)]
-    rocks = []
-    for pos in rock_positions:
-        rock = Rock()
-        GAME_BOARD.register(rock)
-        GAME_BOARD.set_el(pos[0], pos[1], rock)
-        rocks.append(rock)
-
-
-    bgem = BlueGem()
-    GAME_BOARD.register(bgem)
-    GAME_BOARD.set_el(1, 6, bgem)
-
-    ogem = OrangeGem()
-    GAME_BOARD.register(ogem)
-    GAME_BOARD.set_el(3, 3, ogem)
-
-    ggem = GreenGem()
-    GAME_BOARD.register(ggem)
-    GAME_BOARD.set_el(3, 0, ggem)
-
-    bystander = Bystander()
-    GAME_BOARD.register(bystander)
-    GAME_BOARD.set_el(0, 1, bystander)
+    draw_foreground(foreground)
+    GAME_BOARD.set_bg_sprites(background)
+    GAME_BOARD.draw()
 
     GAME_BOARD.draw_msg("You need to save Prince Pineapple from the castle!")
 
+    GAME_BOARD.register(PLAYER)
+    GAME_BOARD.set_el(6, 3, PLAYER)
+
+
 
 def set_up_two():
-    pass
+
+    f = open("level_two.txt")
+    layout_data = f.read()
+    f.close()
+    layout_data = layout_data.split('*')
+    background = map_setup(layout_data[0])
+    foreground = map_setup(layout_data[1])
+
+    game_map = []
+    row = ['Water'] * 7
+    for i in range(7):
+        game_map.append(row)
+    GAME_BOARD.set_bg_sprites(background)
+    GAME_BOARD.draw()
+
+    draw_foreground(foreground)
+
+    GAME_BOARD.register(PLAYER)
+    GAME_BOARD.set_el(0, 0, PLAYER)

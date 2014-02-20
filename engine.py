@@ -41,7 +41,8 @@ def setup_images():
             "Horns": "Character Horn Girl.png",
             "Girl": "Character Pink Girl.png",
             "Princess": "Character Princess Girl.png",
-            "StoneBlockTall": "Stone Block Tall.png"
+            "StoneBlockTall": "Stone Block Tall.png",
+            "Water" : "Water Block.png"
             }
 
     for k,v in filenames.items():
@@ -92,6 +93,18 @@ class Board(object):
 
         for y in range(height):
             for x in range(width):
+                img_idx = game_map[y][x]
+                image = IMAGES[img_idx]
+
+                sprite = pyglet.sprite.Sprite(image)
+                self.draw_bg(sprite, x, y)
+                self.bg_sprites.append(sprite)
+
+    def set_bg_sprites(self, game_map):
+        self.bg_sprites = []
+
+        for y in range(self.height):
+            for x in range(self.width):
                 img_idx = game_map[y][x]
                 image = IMAGES[img_idx]
 
